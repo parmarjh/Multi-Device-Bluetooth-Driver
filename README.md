@@ -133,8 +133,8 @@ The core of this project is the **Neuro-BT Optimization Algorithm**, utilizing a
 ---
 
 ## 📜 License & Support
-Distributed under the **Antigravity Premium License**.  
-For specialized enterprise integration, contact `support@antigravity-ai.tech`.
+Distributed under the **Jatin.s  Premium License**.  
+For specialized enterprise integration, contact `parmarjatin4911@gmail.com`.
 
 ---
 *Built with ❤️ by the Antigravity Team for the next generation of smart connectivity.*
