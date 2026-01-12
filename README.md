@@ -137,4 +137,4 @@ Distributed under the **Jatin.s  Premium License**.
 For specialized enterprise integration, contact `parmarjatin4911@gmail.com`.
 
 ---
-*Built with ❤️ by the Antigravity Team for the next generation of smart connectivity.*
+*Built with ❤️ by the Jatin AI Research Team for the next generation of smart connectivity.*
