@@ -1,0 +1,33 @@
+{
+  "name": "bluetooth-multidriver-windows",
+  "version": "1.0.0",
+  "description": "Windows Multi-Device Bluetooth Driver with AI Integration",
+  "scripts": {
+    "build:driver": "cd driver && msbuild MultiDeviceBTDriver.vcxproj /p:Configuration=Release",
+    "build:service": "cd service && dotnet build -c Release",
+    "build:api": "cd api && dotnet build -c Release",
+    "build:all": "npm run build:driver && npm run build:service && npm run build:api",
+    "install:driver": "cd installer && install-driver.bat",
+    "install:service": "cd installer && install-service.bat",
+    "test": "cd service && dotnet test",
+    "package": "cd installer && create-installer.bat"
+  },
+  "dependencies": {
+    "@tensorflow/tfjs-node": "^4.14.0"
+  },
+  "devDependencies": {
+    "wdk-tools": "^10.0.0"
+  },
+  "system-requirements": {
+    "os": "Windows 10/11 (64-bit)",
+    "wdk": "Windows Driver Kit 10",
+    "dotnet": ".NET 8.0 or higher",
+    "visual-studio": "2022 or higher"
+  },
+  "features": {
+    "maxConnections": 7,
+    "aiOptimization": true,
+    "iotSupport": true,
+    "realTimeMonitoring": true
+  }
+}

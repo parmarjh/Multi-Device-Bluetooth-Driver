@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Antigravity AI - Bluetooth Driver Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --secondary: #8b5cf6;
+            --accent: #ec4899;
+            --background: #0f172a;
+            --surface: rgba(30, 41, 59, 0.7);
+            --text: #f8fafc;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text);
+            overflow: hidden;
+            background: radial-gradient(circle at 50% 50%, #1e1b4b 0%, #0f172a 100%);
+            height: 100vh;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 280px 1fr 320px;
+            grid-template-rows: 80px 1fr;
+            height: 100vh;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        header {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--surface);
+            backdrop-filter: blur(12px);
+            padding: 0 30px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo {
+            font-weight: 800;
+            font-size: 1.5rem;
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-badge {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+            padding: 8px 16px;
+            border-radius: 100px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--success);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.4;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: var(--surface);
+            backdrop-filter: blur(12px);
+            border-radius: 20px;
+            padding: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: rgba(248, 250, 252, 0.6);
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        /* Main Content */
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .device-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            height: calc(100vh - 120px);
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .device-card {
+            background: var(--surface);
+            border-radius: 24px;
+            padding: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .device-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+        }
+
+        .delete-btn {
+            position: absolute;
+            bottom: 24px;
+            right: 24px;
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--error);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            padding: 6px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.7rem;
+            font-weight: 700;
+            transition: all 0.2s ease;
+            opacity: 0;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .device-card:hover .delete-btn {
+            opacity: 1;
+        }
+
+        .delete-btn:hover {
+            background: var(--error);
+            color: white;
+        }
+
+        .device-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+
+        .device-name {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 4px;
+        }
+
+        .device-addr {
+            font-size: 0.8rem;
+            color: rgba(248, 250, 252, 0.5);
+            margin-bottom: 16px;
+        }
+
+        .priority-badge {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .priority-critical {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--error);
+        }
+
+        .priority-high {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+        }
+
+        .priority-medium {
+            background: rgba(99, 102, 241, 0.2);
+            color: var(--primary);
+        }
+
+        .signal-meter {
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            margin-bottom: 8px;
+            overflow: hidden;
+        }
+
+        .signal-fill {
+            height: 100%;
+            background: var(--success);
+            transition: width 0.5s ease;
+        }
+
+        .metrics {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: rgba(248, 250, 252, 0.7);
+        }
+
+        /* Right Panel: Logs */
+        .right-panel {
+            background: var(--surface);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .panel-header {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-weight: 700;
+        }
+
+        #logs {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            font-size: 0.8rem;
+        }
+
+        .log-entry {
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            border-left: 3px solid var(--primary);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.6);
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal {
+            background: #1e293b;
+            padding: 40px;
+            border-radius: 24px;
+            width: 400px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal h2 {
+            margin-bottom: 24px;
+            font-weight: 800;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: white;
+            font-family: inherit;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 30px;
+        }
+
+        .btn-secondary {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .log-time {
+            color: rgba(248, 250, 252, 0.4);
+            margin-bottom: 4px;
+            font-size: 0.7rem;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateX(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard">
+        <header>
+            <div class="logo">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m12 14 4-4" />
+                    <path d="M3.34 19a10 10 0 1 1 17.32 0" />
+                    <path d="m9 15 3 3 3-3" />
+                    <path d="m12 6V3" />
+                    <path d="M12 22v-3" />
+                </svg>
+                ANTIGRAVITY AI
+            </div>
+            <div class="status-badge">
+                <div class="status-dot"></div>
+                SYSTEM ACTIVE: KERNEL DRIVER V1.0
+            </div>
+        </header>
+
+        <aside class="sidebar">
+            <h3 style="margin-bottom: 10px; font-weight: 700;">System Stats</h3>
+            <div class="stat-card">
+                <div class="stat-label">CONNECTIONS</div>
+                <div class="stat-value" id="count-conn">0 / 7</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">DATA RATE</div>
+                <div class="stat-value" id="count-rate">0.0 KB/s</div>
+            </div>
+            <div class="stat-card" style="border-left: 3px solid var(--accent);">
+                <div class="stat-label">AI OPTIMIZATIONS</div>
+                <div class="stat-value" id="count-ai">0</div>
+            </div>
+
+            <button class="btn-primary" onclick="openModal()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M5 12h14" />
+                    <path d="M12 5v14" />
+                </svg>
+                Connect Custom Device
+            </button>
+
+            <div style="flex: 1;"></div>
+
+            <div style="font-size: 0.7rem; color: rgba(255,255,255,0.3); text-align: center;">
+                &copy; 2026 ANTIGRAVITY AI LABS
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="device-grid" id="device-grid">
+                <!-- Devices will be injected here -->
+            </div>
+        </main>
+
+        <section class="right-panel">
+            <div class="panel-header">AI ENGINE LOGS</div>
+            <div id="logs"></div>
+        </section>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal-overlay" id="modal-overlay">
+        <div class="modal">
+            <h2>Connect Device</h2>
+            <div class="form-group">
+                <label>Device Name</label>
+                <input type="text" id="dev-name" placeholder="e.g. My Smart Toaster">
+            </div>
+            <div class="form-group">
+                <label>Device Type</label>
+                <select id="dev-type">
+                    <option value="🎧">Headphones</option>
+                    <option value="📺">Smart TV</option>
+                    <option value="📱">Mobile Phone</option>
+                    <option value="🌡️">AC / Climate</option>
+                    <option value="💡">Smart Light</option>
+                    <option value="🛠️">Generic IoT</option>
+                </select>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+                <button class="btn-primary" style="flex: 2" onclick="addNewDevice()">Connect Now</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let DEVICES = [
+            { id: 1, name: "Living Room AC", type: "Air Conditioner", addr: "B4:3A:92:7C:F5:12", priority: "MEDIUM", icon: "🌡️" },
+            { id: 2, name: "Kitchen Fridge", type: "Refrigerator", addr: "C1:44:8E:20:BC:99", priority: "MEDIUM", icon: "❄️" },
+            { id: 3, name: "Sony XM4", type: "Headphones", addr: "A8:11:7F:32:01:45", priority: "HIGH", icon: "🎧" },
+            { id: 4, name: "Samsung S23", type: "Mobile Phone", addr: "D9:92:1C:88:A3:21", priority: "MEDIUM", icon: "📱" },
+            { id: 5, name: "Sony Bravia TV", type: "Android TV", addr: "E2:33:00:11:CC:DD", priority: "LOW", icon: "📺" }
+        ];
+
+        let aiCount = 0;
+        let totalRate = 0;
+        let nextId = 6;
+
+        function openModal() {
+            document.getElementById('modal-overlay').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('modal-overlay').style.display = 'none';
+        }
+
+        function generateAddr() {
+            return Array.from({ length: 6 }, () => Math.floor(Math.random() * 256).toString(16).toUpperCase().padStart(2, '0')).join(':');
+        }
+
+        function addNewDevice() {
+            const name = document.getElementById('dev-name').value || "Unnamed Device";
+            const icon = document.getElementById('dev-type').value;
+            const addr = generateAddr();
+
+            DEVICES.push({
+                id: nextId++,
+                name: name,
+                type: "Custom Device",
+                addr: addr,
+                priority: "MEDIUM",
+                icon: icon
+            });
+
+            addLog(`SYSTEM: Initiating handshake with ${name}...`);
+            setTimeout(() => {
+                addLog(`SYSTEM: Connection encrypted. ${name} (${addr}) added to pool.`);
+            }, 800);
+
+            closeModal();
+            updateUI();
+        }
+
+        function removeDevice(id) {
+            const dev = DEVICES.find(d => d.id === id);
+            if (!dev) return;
+
+            addLog(`SYSTEM: Tearing down connection for ${dev.name}...`);
+
+            // Remove from array
+            DEVICES = DEVICES.filter(d => d.id !== id);
+
+            setTimeout(() => {
+                addLog(`SYSTEM: Device ${dev.name} disconnected and cleaned from kernel map.`);
+                updateUI();
+            }, 500);
+        }
+
+        function updateUI() {
+            const grid = document.getElementById('device-grid');
+            grid.innerHTML = '';
+
+            totalRate = 0;
+
+            DEVICES.forEach(dev => {
+                const signal = -30 - Math.floor(Math.random() * 60);
+                const rate = dev.priority === 'CRITICAL' ? 15 + Math.random() * 10 : (dev.priority === 'HIGH' ? 8 + Math.random() * 5 : 1 + Math.random() * 3);
+                totalRate += rate;
+
+                const card = document.createElement('div');
+                card.className = 'device-card';
+                card.innerHTML = `
+                    <div class="priority-badge priority-${dev.priority.toLowerCase()}">${dev.priority}</div>
+                    <div class="device-icon">${dev.icon}</div>
+                    <div class="device-name">${dev.name}</div>
+                    <div class="device-addr">${dev.addr}</div>
+                    <div class="signal-meter">
+                        <div class="signal-fill" style="width: ${100 + signal}%"></div>
+                    </div>
+                    <div class="metrics">
+                        <span>Signal: ${signal} dBm</span>
+                        <span>Rate: ${rate.toFixed(1)} KB/s</span>
+                    </div>
+                    <button class="delete-btn" onclick="removeDevice(${dev.id})">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                        Delete
+                    </button>
+                `;
+                grid.appendChild(card);
+
+                // AI Logic simulation
+                if (signal < -85) {
+                    addLog(`AI ACTION: Signal boost applied to ${dev.name} (Low RSSI: ${signal}dBm)`);
+                    aiCount++;
+                }
+
+                if (dev.name === 'Sony XM4' && rate > 5 && dev.priority !== 'CRITICAL') {
+                    dev.priority = 'CRITICAL';
+                    addLog(`AI ACTION: Elevated Sony XM4 to CRITICAL (High Fidelity Audio stream)`);
+                    aiCount++;
+                }
+            });
+
+            document.getElementById('count-conn').innerText = `${DEVICES.length} / 7`;
+            document.getElementById('count-rate').innerText = `${totalRate.toFixed(1)} KB/s`;
+            document.getElementById('count-ai').innerText = aiCount;
+        }
+
+        function addLog(msg) {
+            const logs = document.getElementById('logs');
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.innerHTML = `
+                <div class="log-time">${new Date().toLocaleTimeString()}</div>
+                <div>${msg}</div>
+            `;
+            logs.prepend(entry);
+            if (logs.children.length > 20) logs.removeChild(logs.lastChild);
+        }
+
+        setInterval(updateUI, 2000);
+        updateUI();
+        addLog("System initialized. Kernel communication established.");
+        addLog("AI Engine v1.08 reporting for duty.");
+    </script>
+</body>
+
+</html>

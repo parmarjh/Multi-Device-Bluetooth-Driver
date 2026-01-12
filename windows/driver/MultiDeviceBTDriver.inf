@@ -1,0 +1,65 @@
+;
+; MultiDeviceBTDriver.inf
+;
+; Installation file for the AI-Enhanced Bluetooth Multi-Device Driver
+;
+
+[Version]
+Signature   = "$WINDOWS NT$"
+Class       = Bluetooth
+ClassGuid   = {e0cbf069-1e4e-4e42-9446-55b1720d8659}
+Provider    = %ProviderName%
+CatalogFile = MultiDeviceBTDriver.cat
+DriverVer   = 01/12/2026,1.0.0.0
+PnpLockdown = 1
+
+[DestinationDirs]
+DefaultDestDir = 13
+
+[SourceDisksNames]
+1 = %DiskName%,,,""
+
+[SourceDisksFiles]
+MultiDeviceBTDriver.sys = 1,,
+
+;*****************************************
+; Install Section
+;*****************************************
+
+[Manufacturer]
+%ManufacturerName% = Standard,NT$ARCH$
+
+[Standard.NT$ARCH$]
+%MultiDeviceBTDriver.DeviceDesc% = MultiDeviceBTDriver_Device, Root\MultiDeviceBTDriver
+
+[MultiDeviceBTDriver_Device.NT]
+CopyFiles = MultiDeviceBTDriver_Files
+
+[MultiDeviceBTDriver_Files]
+MultiDeviceBTDriver.sys
+
+;-------------- Service installation
+[MultiDeviceBTDriver_Device.NT.Services]
+AddService = MultiDeviceBTDriver,%SPSVCINST_ASSOCSERVICE%, MultiDeviceBTDriver_Service_Inst
+
+; -------------- MultiDeviceBTDriver driver install sections
+[MultiDeviceBTDriver_Service_Inst]
+DisplayName    = %MultiDeviceBTDriver.SVCDESC%
+ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
+StartType      = 3               ; SERVICE_DEMAND_START
+ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %13%\MultiDeviceBTDriver.sys
+
+[MultiDeviceBTDriver_Device.NT.Wdf]
+KmdfService =  MultiDeviceBTDriver, MultiDeviceBTDriver_wdfsect
+
+[MultiDeviceBTDriver_wdfsect]
+KmdfLibraryVersion = $KMDFVERSION$
+
+[Strings]
+SPSVCINST_ASSOCSERVICE = 0x00000002
+ProviderName = "Antigravity AI Systems"
+ManufacturerName = "Antigravity AI Systems"
+DiskName = "MultiDeviceBTDriver Installation Disk"
+MultiDeviceBTDriver.DeviceDesc = "Antigravity AI-Enhanced Bluetooth Multi-Device Virtual Controller"
+MultiDeviceBTDriver.SVCDESC = "MultiDeviceBTDriver Service"
